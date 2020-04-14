@@ -1,64 +1,75 @@
 const Discord = require("discord.js"),
-      db = require("quick.db"),
-      ayarlar = require("../ayarlar.json"),
-      prefix = ayarlar.prefix;
+  db = require("quick.db");
 
 exports.run = async (client, message, args, tools) => {
   let kişi;
-  if (message.mentions.members.first()) kişi = message.mentions.members.first();
-  else kişi = message.author;
-
-  let davetv2 = await db.fetch(`davet_${kişi.id}_${message.guild.id}`);
-  let davet;
-  if (!davetv2) {
-    davet = 0;
+  if (message.mentions.members.first()) {
+    kişi = message.mentions.members.first();
   } else {
-    davet = await db.fetch(`davet_${kişi.id}_${message.guild.id}`);
+    kişi = message.author;
   }
-  let rol1 = await db.fetch(`rol1_${message.guild.id}`);
-  let roldavet1 = await db.fetch(`roldavet1_${message.guild.id}`);
-  let roldavet2 = await db.fetch(`roldavet2_${message.guild.id}`);
-  let rol2 = await db.fetch(`rol2_${message.guild.id}`);
-  if (!rol1) {
+
+  let bilgi = await db.fetch(`davet_${kişi.id}_${message.guild.id}`);
+  let sayı2;
+  if (!bilgi) {
+    sayı2 = 0;
+  } else {
+    sayı2 = await db.fetch(`davet_${kişi.id}_${message.guild.id}`);
+  }
+  let veri = await db.fetch(`rol1_${message.guild.id}`);
+  let veri12 = await db.fetch(`roldavet1_${message.guild.id}`);
+  let veri21 = await db.fetch(`roldavet2_${message.guild.id}`);
+  let veri2 = await db.fetch(`rol2_${message.guild.id}`);
+  if (!veri) {
     const embed = new Discord.RichEmbed()
-    .addField(`Kullanıcı`, `<@` + kişi.id + `>`, true)
-    .addField(`Toplam Davet:`, davet, true)
-    .setColor("RANDOM")
-    .setFooter(client.user.username, client.user.avatarURL);
-    message.channel.send(embed);
-  }
-  if (message.member.roles.has(rol2)) {
-    const embed = new Discord.RichEmbed()
-    .addField(`Kullanıcı`, `<@` + kişi.id + `>`, true)
-    .addField(`Toplam Davet:`, davet, true)
-    .setColor("RANDOM")
-    .setFooter(client.user.username, client.user.avatarURL);
-    message.channel.send(embed);
-  }
-  if (!message.member.roles.has(rol1)) {
-    const embed = new Discord.RichEmbed()
-    .addField(`Kullanıcı`, `<@` + kişi.id + `>`, true)
-    .addField(`Toplam Davet:`, davet, true)
-    .setColor("RANDOM")
-    .setDescription(`${message.guild.roles.get(rol1).name} rolü için son ${roldavet1 - davet} davet!`);
-    message.channel.send(embed);
-  }
-  if (message.member.roles.has(rol1)) {
-    if (!rol2) {
-      const embed = new Discord.RichEmbed()
-      .addField(`Kullanıcı`, `<@` + kişi.id + `>`, true)
-      .addField(`Toplam Davet:`, davet, true)
-      .setColor("RANDOM")
+      .addField(`Davetlerin Sahibi`, `<@` + kişi.id + `>`, true)
+      .addField(`Total Davet:`, sayı2, true)
+      .setColor("BLACK")
       .setFooter(client.user.username, client.user.avatarURL);
-      message.channel.send(embed);
-    }
-    if (rol2) {
+    message.channel.send(embed);
+  }
+  if (message.member.roles.has(veri2)) {
+    const embed = new Discord.RichEmbed()
+      .addField(`Davetlerin Sahibi`, `<@` + kişi.id + `>`, true)
+      .addField(`Total Davet:`, sayı2, true)
+      .setColor("BLACK")
+      .setFooter(client.user.username, client.user.avatarURL);
+    message.channel.send(embed);
+    return;
+  }
+  if (!message.member.roles.has(veri)) {
+    const embed = new Discord.RichEmbed()
+      .addField(`Davetlerin Sahibi`, `<@` + kişi.id + `>`, true)
+      .addField(`Total Davet:`, sayı2, true)
+      .setColor("BLACK")
+      .setDescription(
+        `${message.guild.roles.get(veri).name} rolü için son ${-sayı2 -
+          -veri12} davet!`
+      );
+    message.channel.send(embed);
+    return;
+  }
+  if (message.member.roles.has(veri)) {
+    if (!veri2) {
       const embed = new Discord.RichEmbed()
-      .addField(`Kullanıcı`, `<@` + kişi.id + `>`, true)
-      .addField(`Toplam Davet:`, davet, true)
-      .setColor("RANDOM")
-      .setDescription(`${message.guild.roles.get(rol2).name} rolü için son ${roldavet2 - davet} davet!`);
+        .addField(`Davetlerin Sahibi`, `<@` + kişi.id + `>`, true)
+        .addField(`Total Davet:`, sayı2, true)
+        .setColor("BLACK")
+        .setFooter(client.user.username, client.user.avatarURL);
       message.channel.send(embed);
+      return;
+    }
+    if (veri2) {
+      const embed = new Discord.RichEmbed()
+        .addField(`Davetlerin Sahibi`, `<@` + kişi.id + `>`, true)
+        .addField(`Total Davet:`, sayı2, true)
+        .setColor("BLACK")
+        .setDescription(
+          `${message.guild.roles.get(veri2).name} rolü için son ${-sayı2 -
+            -veri21} davet!`
+        );
+      message.channel.send(embed);
+      return;
     }
   }
   
@@ -66,12 +77,10 @@ exports.run = async (client, message, args, tools) => {
 exports.conf = {
   enabled: true,
   guildOnly: true,
-  aliases: ["davetlerim"],
+  aliases: ["davetk", "davetlerim"],
   permLevel: 0
 };
 
-module.exports.help = {
-  name: "davetlerim",
-  description: "davetlerim",
-  usage: "davetlerim"
+exports.help = {
+  name: "davetler"
 };
