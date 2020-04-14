@@ -1,29 +1,49 @@
-const Discord = require("discord.js"),
-      db = require("quick.db"),
-      ayarlar = require("../ayarlar.json"),
-      prefix = ayarlar.prefix;
-
+const Discord = require("discord.js");
+const db = require("quick.db");
 module.exports.run = async (bot, message, args) => {
-  if (!message.member.hasPermission("ADMINISTRATOR")) return message.channel.send(`Bunu yapabilmek için gerekli yetkiye sahip değilsiniz!`)
+  let prefix = (await db.fetch(`prefix_${message.guild.id}`)) || "!";
+  if (!message.member.hasPermission("KICK_MEMBERS")) {
+    const embed = new Discord.RichEmbed()
+      .setDescription("```Ne yazık ki bu komutu kullanmaya yetkin yok.```")
+      .setColor("BLACK")
+.setFooter(bot.user.username, bot.user.avatarURL)
+    message.channel.send(embed);
+    return;
+  }
 
-  let kullanici = message.mentions.users.first();
-  let sayi = args.slice(1).join(" ")
-  if (!kullanici) return message.channel.send(`Bir kullanıcı etiketlemelisiniz!`)
-  if (!sayi) return message.channel.send(`Kaç adet daveti sileceğinizi yazmalısınız!`)
+  let u = message.mentions.users.first();
+let m = args.slice(1).join(" ")
+  if (!u) {
+    return message.channel.send(
+      new Discord.RichEmbed()
+        .setDescription("Lütfen daveti silinecek kişiyi etiketleyiniz!")
+        .setColor("BLACK")
+      .setFooter(bot.user.username, bot.user.avatarURL)
+    );
+  }
+    if (!m) {
+    return message.channel.send(
+      new Discord.RichEmbed()
+        .setDescription("Lütfen silinecek davet sayısını giriniz.")
+        .setColor("BLACK")
+      .setFooter(bot.user.username, bot.user.avatarURL)
+    );
+  }
   const embed = new Discord.RichEmbed()
-  .setColor("RANDOM")
-  .setDescription(`${kullanici} kullanıcısından ${sayi} adet davet silindi!`)
+    .setColor("BLACK")
+    .setDescription(`${u} Adlı şahstan; ${m} davet silindi!`)
   .setFooter(bot.user.username, bot.user.avatarURL)
   message.channel.send(embed);
 
-  db.add(`davet_${kullanici.id}_${message.guild.id}`, -sayi);
+  db.add(`davet_${message.author.id}_${message.guild.id}`, -m);
 };
 
 module.exports.conf = {
   aliases: ["davetsil"],
-  permLevel: 0,
+  permLevel: 2,
   enabled: true,
-  guildOnly: true
+  guildOnly: true,
+  kategori: "moderasyon"
 };
 
 module.exports.help = {
